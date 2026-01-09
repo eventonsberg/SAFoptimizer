@@ -89,12 +89,16 @@ def maximize_volume_weighted_missile_cost(prod_facilities, air_defense, restrict
             air_defense_missiles_total = int(z_f[f].solution_value())
             investment_cost = C_f[f] * number_of_facilities + C_A * air_defense_missiles_total
             missile_cost_total = H_f[f] * number_of_facilities + p_A * air_defense_missiles_total
+            production_capacity = K_f[f] * number_of_facilities
+            volume_weighted_missile_cost = production_capacity * missile_cost_total
             results.append({
                 "Type fabrikk": facility,
                 "Antall fabrikker": number_of_facilities,
                 "Totalt antall luftvernmissiler": air_defense_missiles_total,
                 "Investeringskostnad": investment_cost,
                 "Missilkostnad": missile_cost_total,
+                "Produksjonskapasitet": production_capacity,
+                "Volumvektet missilkostnad": volume_weighted_missile_cost
             })
             total_investment_cost += investment_cost
             total_production_capacity += K_f[f] * number_of_facilities
