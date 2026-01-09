@@ -7,7 +7,7 @@ st.set_page_config(
     page_icon=":material/travel:"
 )
 
-tab1, tab2 = st.tabs(["Missilkostnad", "Missilkostnad per kubikk drivstoff"])
+tab1, tab2 = st.tabs(["Missilkostnad", "Volumvektet missilkostnad"])
 
 with tab1:
     display_tab_1()

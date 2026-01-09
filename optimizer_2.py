@@ -2,18 +2,21 @@ import streamlit as st
 from ortools.linear_solver import pywraplp
 import pandas as pd
 
-def maximize_missile_cost(prod_facilities, air_defense, restrictions):
+def maximize_volume_weighted_missile_cost(prod_facilities, air_defense, restrictions):
     
     # Constants
     p_A = float(air_defense.loc[0, "Suksessrate"]) # Probability of successful interception by an air defense missile
     C_A = int(air_defense.loc[0, "Kostnad per enhet"]) # Cost per air defense missile
     B = int(restrictions.loc[0, "Mengde"]) # Total budget
+    K_max = int(restrictions.loc[1, "Mengde"]) # Maximum total production capacity
     F = len(prod_facilities) # Number of production facility types
+    K_f = [] # Production capacity for a facility of type f
     H_f = [] # Number of hits required to destroy a facility of type f
     C_f = [] # Cost per facility of type f
     X_max_f = [] # Maximum number of facilities of type f
     Y_max_f = [] # Maximum number of air defense missiles protecting a facility of type f
     for f in range(F):
+        K_f.append(float(prod_facilities.loc[f, "Produksjonskapasitet"]))
         H_f.append(float(prod_facilities.loc[f, "Hardhet"]))
         facility_cost = float(prod_facilities.loc[f, "Kostnad per enhet"])
         C_f.append(facility_cost)
@@ -25,7 +28,9 @@ def maximize_missile_cost(prod_facilities, air_defense, restrictions):
         'p_A': p_A,
         'C_A': C_A,
         'B': B,
+        'K_max': K_max,
         'F': F,
+        'K_f': K_f,
         'H_f': H_f,
         'C_f': C_f,
         'X_max_f': X_max_f,
@@ -53,6 +58,9 @@ def maximize_missile_cost(prod_facilities, air_defense, restrictions):
     solver.Add(
         solver.Sum([C_f[f] * x_f[f] + C_A * z_f[f] for f in range(F)]) <= B
     )
+    solver.Add(
+        solver.Sum([K_f[f] * x_f[f] for f in range(F)]) <= K_max
+    )
     for f in range(F):
         solver.Add(
             z_f[f] <= x_f[f] * Y_max_f[f]
@@ -66,7 +74,7 @@ def maximize_missile_cost(prod_facilities, air_defense, restrictions):
 
     # Objective:
     solver.Maximize(
-        solver.Sum([H_f[f] * x_f[f] + p_A * z_f[f] for f in range(F)])
+        solver.Sum([K_f[f] * (H_f[f] * x_f[f] + p_A * z_f[f]) for f in range(F)])
     )
 
     # Solve
@@ -74,6 +82,7 @@ def maximize_missile_cost(prod_facilities, air_defense, restrictions):
     if status == pywraplp.Solver.OPTIMAL:
         results = []
         total_investment_cost = 0
+        total_production_capacity = 0
         for f in range(F):
             facility = prod_facilities.loc[f, "Type"]
             number_of_facilities = int(x_f[f].solution_value())
@@ -88,6 +97,7 @@ def maximize_missile_cost(prod_facilities, air_defense, restrictions):
                 "Missilkostnad": missile_cost_total,
             })
             total_investment_cost += investment_cost
+            total_production_capacity += K_f[f] * number_of_facilities
         results_df = pd.DataFrame(results)
         st.subheader("Optimal løsning")
         st.dataframe(
@@ -98,4 +108,5 @@ def maximize_missile_cost(prod_facilities, air_defense, restrictions):
             }
         )
         st.write(f'Total investeringskostnad: {total_investment_cost:,.0f}')
-        st.write(f'Total missilkostnad: {solver.Objective().Value()}')
+        st.write(f'Total produksjonskapasitet: {total_production_capacity:,.0f}')
+        st.write(f'Total volumvektet missilkostnad: {solver.Objective().Value():,.0f}')
