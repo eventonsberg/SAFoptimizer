@@ -19,8 +19,9 @@ def display_tab_2():
     )
 
     st.subheader("Luftvern")
+    relevant_air_defense_columns = ["Type", "Kostnad per enhet", "Suksessrate"]
     air_defense_edited = st.data_editor(
-        air_defense,
+        air_defense[relevant_air_defense_columns],
         hide_index=True,
         column_config={
             "Kostnad per enhet": st.column_config.NumberColumn(format="localized")
