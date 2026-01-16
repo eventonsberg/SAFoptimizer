@@ -77,5 +77,9 @@ def maximize_missile_cost(prod_facilities, air_defense, restrictions):
                 "Investeringskostnad": st.column_config.NumberColumn(format="localized")
             }
         )
-        st.write(f'Total investeringskostnad: {total_investment_cost:,.0f}')
+        if total_investment_cost < B:
+            leftover_budget = B - total_investment_cost
+            st.write(f'Total investeringskostnad: {total_investment_cost:,.0f} :orange-badge[Ubrukte midler: {leftover_budget:,.0f}]')
+        else:
+            st.write(f'Total investeringskostnad: {total_investment_cost:,.0f}')
         st.write(f'Total missilkostnad: {solver.Objective().Value()}')

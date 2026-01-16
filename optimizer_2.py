@@ -111,6 +111,10 @@ def maximize_volume_weighted_missile_cost(prod_facilities, air_defense, restrict
                 "Investeringskostnad": st.column_config.NumberColumn(format="localized")
             }
         )
-        st.write(f'Total investeringskostnad: {total_investment_cost:,.0f}')
+        if total_investment_cost < B:
+            leftover_budget = B - total_investment_cost
+            st.write(f'Total investeringskostnad: {total_investment_cost:,.0f} :orange-badge[Ubrukte midler: {leftover_budget:,.0f}]')
+        else:
+            st.write(f'Total investeringskostnad: {total_investment_cost:,.0f}')
         st.write(f'Total produksjonskapasitet: {total_production_capacity:,.0f}')
         st.write(f'Total volumvektet missilkostnad: {solver.Objective().Value():,.0f}')
