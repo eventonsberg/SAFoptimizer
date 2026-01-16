@@ -117,4 +117,4 @@ def maximize_volume_weighted_missile_cost(prod_facilities, air_defense, restrict
         else:
             st.write(f'Total investeringskostnad: {total_investment_cost:,.0f}')
         st.write(f'Total produksjonskapasitet: {total_production_capacity:,.0f}')
-        st.write(f'Total volumvektet missilkostnad: {solver.Objective().Value():,.0f}')
+        st.write(f'Total volumvektet missilkostnad: {solver.Objective().Value():,.1f}')
