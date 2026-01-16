@@ -29,7 +29,7 @@ air_defense = pd.DataFrame([
         "Type": "Luftvernmissil",
         "Kostnad per enhet": 5000000,
         "Suksessrate": 0.7,
-        "Maks antall enheter per fabrikk": 20
+        "Maks antall enheter per fabrikk": 100
     },
 ])
 
