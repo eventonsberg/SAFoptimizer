@@ -1,6 +1,6 @@
 import streamlit as st
 
-def display_notes_3():
+def display_notes():
     st.markdown("""
         Lineær-problematikken kan unngås ved å gjøre $x_f$ om til en boolsk variabel.
     """)

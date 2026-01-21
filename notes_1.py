@@ -1,6 +1,6 @@
 import streamlit as st
 
-def display_notes_1():
+def display_notes():
     st.markdown("""
         Ønsker å maksimere kostnaden -- i form av antall missiler -- som kreves for å ødelegge samtlige drivstoffabrikker
     """)

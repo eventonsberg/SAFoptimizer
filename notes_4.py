@@ -1,6 +1,6 @@
 import streamlit as st
 
-def display_notes_4():
+def display_notes():
     st.subheader("Objektivfunksjon")
     st.latex(r"""
     \max_{x_f,\, y_f}\;\; \sum_{f\in F} K_f \big( H_f\, x_f + p_A\, y_f \big)

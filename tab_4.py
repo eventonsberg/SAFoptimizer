@@ -1,11 +1,11 @@
 import streamlit as st
-from input_data import prod_facilities, air_defense, restrictions
+from input_data_1 import prod_facilities, air_defense, restrictions
 from optimizer_4 import maximize_volume_weighted_missile_cost
-from notes_4 import display_notes_4
+from notes_4 import display_notes
 
 def display_tab_4():
     with st.expander("Vis notater"):
-        display_notes_4()
+        display_notes()
         
     st.subheader("Fabrikker")
     relevant_prod_facilities_columns = ["Type", "Kostnad per enhet", "Hardhet", "Maks antall enheter", "Produksjonskapasitet"]

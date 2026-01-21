@@ -1,6 +1,6 @@
 import streamlit as st
 
-def display_notes_2():
+def display_notes():
     st.markdown(
         """
         Et naturlig neste steg er å maksimere volumvektet missilkostnad,
