@@ -1,6 +1,10 @@
 from ortools.sat.python import cp_model
 from optimizer_5 import minimize_production_capacity
 
+def scale_int(value, scale=100):
+    # Help function to scale float to int for CP-SAT
+    return int(round(value * scale))
+
 def generate_model_inputs(potential_facilities, air_defense, restrictions):
     P_A = float(air_defense.loc[0, "Suksessrate"]) # Probability of successful interception by an air defense missile
     C_A = int(air_defense.loc[0, "Kostnad"]) # Cost of an air defense missile
@@ -20,9 +24,11 @@ def generate_model_inputs(potential_facilities, air_defense, restrictions):
             K_f.append(int(potential_facilities.loc[f_type, "Kapasitet"]))
             H_f.append(float(potential_facilities.loc[f_type, "Hardhet"]))
             C_f.append(int(potential_facilities.loc[f_type, "Kostnad"]))
-    return P_A, C_A, A_max, B_R, B_B, F, type_f, K_f, H_f, C_f
+    M_M = B_R + sum(H_f) + F * P_A * A_max  # Big M for interdiction problem, limit for total missile cost
+    M_K = sum(K_f)  # Big M for interdiction problem, limit for total production capacity
+    return P_A, C_A, A_max, B_R, B_B, F, type_f, K_f, H_f, C_f, M_M, M_K
 
-def maximize_remaining_production_capacity(C_A, A_max, B_B, F, K_f, C_f, scenarios):
+def maximize_remaining_production_capacity(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f, M_M, M_K, scenarios):
     # Model
     model = cp_model.CpModel()
 
@@ -32,11 +38,23 @@ def maximize_remaining_production_capacity(C_A, A_max, B_B, F, K_f, C_f, scenari
     a_f = [model.NewIntVar(0, A_max, f'a_{f}') for f in range(F)]  # Number of air defense missiles protecting facility f
 
     # Constraints
+    scaled_missile_cost_f = [scale_int(H_f[f]) + scale_int(P_A) * a_f[f] for f in range(F)]
+    scaled_B_R = scale_int(B_R)
+    scaled_M_M = scale_int(M_M)
     if not scenarios:
         scenarios = [[0] * F]  # Default attack scenario where no facilities are destroyed
-    for _, d_f_s in enumerate(scenarios):
+    for s, d_f_s in enumerate(scenarios):
+        phi_s = model.NewBoolVar(f'phi_{s}')  # Boolean variable indicating if scenario s is feasible with the current air defense configuration
         model.Add(
-            K_tot_star <= sum(K_f[f] * e_f[f] * (1 - d_f_s[f]) for f in range(F))  # Remaining production capacity after attack scenario s
+            sum(scaled_missile_cost_f[f] * d_f_s[f] for f in range(F)) <= scaled_B_R + scaled_M_M * (1 - phi_s)
+            # Ensures that phi_s is set to 0 if scenario s is infeasible
+        )
+        model.Add(
+            sum(scaled_missile_cost_f[f] * d_f_s[f] for f in range(F)) >= scaled_B_R + 1 - scaled_M_M * phi_s
+            # Ensures that phi_s is set to 1 if scenario s is feasible
+        )
+        model.Add(
+            K_tot_star <= sum(K_f[f] * e_f[f] * (1 - d_f_s[f]) for f in range(F)) + M_K * (1 - phi_s) # Remaining production capacity after attack scenario s
         )
 
     for f in range(F):
@@ -61,11 +79,11 @@ def maximize_remaining_production_capacity(C_A, A_max, B_B, F, K_f, C_f, scenari
     remaining_production_capacity = int(solver.ObjectiveValue())
     return estblished_f, air_defense_f, remaining_production_capacity, status
 
-def solve_interdiction(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f, max_iters=100):
+def solve_interdiction(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f, M_M, M_K, max_iters=1000):
     scenarios = [] # List of attack scenarios
     history = [] # Iteration history
     for it in range(max_iters):
-        e_f, a_f, K_tot_star, status = maximize_remaining_production_capacity(C_A, A_max, B_B, F, K_f, C_f, scenarios)
+        e_f, a_f, K_tot_star, status = maximize_remaining_production_capacity(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f, M_M, M_K, scenarios)
         if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
             return {"status": "INFEASABLE", "history": history}
         d_f, missile_cost_f, production_capacity = minimize_production_capacity(P_A, B_R, F, K_f, e_f, H_f, a_f)

@@ -39,8 +39,8 @@ def display_tab_6():
     )
 
     if st.button("Kjør optimering", type="primary", key="optimize_6"):
-        P_A, C_A, A_max, B_R, B_B, F, type_f, K_f, H_f, C_f = generate_model_inputs(potential_facilities_edited, air_defense_edited, restrictions_edited)
-        results_dict = solve_interdiction(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f)
+        P_A, C_A, A_max, B_R, B_B, F, type_f, K_f, H_f, C_f, M_M, M_K = generate_model_inputs(potential_facilities_edited, air_defense_edited, restrictions_edited)
+        results_dict = solve_interdiction(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f, M_M, M_K)
         if results_dict["status"] == "OPTIMAL":
             results = []
             type_counters = {}
@@ -69,3 +69,11 @@ def display_tab_6():
                 }
             )
             st.write(f"Gjenværende produksjonskapasitet etter angrep: {results_dict['remaining_production_capacity_after_attack']}")
+            with st.expander("Vis iterasjonshistorikk"):
+                history_df = pd.DataFrame(results_dict["history"])
+                st.dataframe(history_df)
+        else:
+            st.write(f"Optimeringen feilet med status: {results_dict['status']}")
+            st.subheader("Iterasjonshistorikk")
+            history_df = pd.DataFrame(results_dict["history"])
+            st.dataframe(history_df)
