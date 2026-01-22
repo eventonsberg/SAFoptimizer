@@ -1,12 +1,6 @@
 from ortools.sat.python import cp_model
 
-def scale_int(value, scale=100):
-    # Help function to scale float to int for CP-SAT
-    return int(round(value * scale))
-
-def minimize_production_capacity(potential_facilities, air_defense, restrictions):
-    
-    # Constants
+def generate_model_inputs(potential_facilities, air_defense, restrictions):
     P_A = float(air_defense.loc[0, "Suksessrate"]) # Probability of successful interception by an air defense missile
     B_R = int(restrictions.loc[0, "Mengde"]) # Missile budget
     F = len(potential_facilities) # Number of potential facilities
@@ -19,7 +13,13 @@ def minimize_production_capacity(potential_facilities, air_defense, restrictions
         e_f.append(bool(potential_facilities.loc[f, "Etablert"]))
         H_f.append(float(potential_facilities.loc[f, "Hardhet"]))
         a_f.append(int(potential_facilities.loc[f, "Luftvern"]))
+    return P_A, B_R, F, K_f, e_f, H_f, a_f
 
+def scale_int(value, scale=100):
+    # Help function to scale float to int for CP-SAT
+    return int(round(value * scale))
+
+def minimize_production_capacity(P_A, B_R, F, K_f, e_f, H_f, a_f):
     # Model
     model = cp_model.CpModel()
 

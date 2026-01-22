@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from input_data_5 import potential_facilities, air_defense, restrictions
-from optimizer_5 import minimize_production_capacity
+from optimizer_5 import generate_model_inputs, minimize_production_capacity
 from notes_5 import display_notes
 
 def display_tab_5():
@@ -41,7 +41,8 @@ def display_tab_5():
     )
 
     if st.button("Kjør optimering", type="primary", key="optimize_5"):
-        destroyed_f, missile_cost_f, production_capacity = minimize_production_capacity(potential_facilities_edited, air_defense_edited, restrictions_edited)
+        P_A, B_R, F, K_f, e_f, H_f, a_f = generate_model_inputs(potential_facilities_edited, air_defense_edited, restrictions_edited)
+        destroyed_f, missile_cost_f, production_capacity = minimize_production_capacity(P_A, B_R, F, K_f, e_f, H_f, a_f)
         if destroyed_f is None:
             st.error("Ingen løsning funnet")
             return
