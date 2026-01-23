@@ -44,6 +44,8 @@ def display_tab_6():
         if results_dict["status"] == "OPTIMAL":
             results = []
             type_counters = {}
+            total_facility_and_air_defense_cost = 0
+            total_missile_cost = 0
             for f in range(F):
                 if results_dict["established_facilities"][f]:
                     if type_f[f] not in type_counters:
@@ -52,13 +54,16 @@ def display_tab_6():
                     type_name = f"{type_f[f]} #{type_counters[type_f[f]]}" if type_counters[type_f[f]] > 1 else type_f[f]
                     number_of_air_defense_missiles = results_dict["air_defense_assignment"][f]
                     facility_and_air_defense_cost = C_f[f] + C_A * number_of_air_defense_missiles
+                    missile_cost = results_dict["missile_costs"][f]
                     results.append({
                         "Type fabrikk": type_name,
                         "Antall luftvernmissiler": number_of_air_defense_missiles,
                         "Fabrikk- og luftvernkostnad": facility_and_air_defense_cost,
                         "Ødelagt": results_dict["attack_scenario"][f],
-                        "Missilkostnad": results_dict["missile_costs"][f]
+                        "Missilkostnad": missile_cost
                     })
+                    total_facility_and_air_defense_cost += facility_and_air_defense_cost
+                    total_missile_cost += missile_cost
             results_df = pd.DataFrame(results)
             st.subheader("Optimal løsning")
             st.dataframe(
@@ -68,7 +73,9 @@ def display_tab_6():
                     "Fabrikk- og luftvernkostnad": st.column_config.NumberColumn(format="localized")
                 }
             )
-            st.write(f"Gjenværende produksjonskapasitet etter angrep: {results_dict['remaining_production_capacity_after_attack']}")
+            st.write(f"Gjenværende produksjonskapasitet etter angrep: {results_dict['remaining_production_capacity_after_attack']:,.0f}")
+            st.write(f"Totale fabrikk- og luftvernkostnader: {total_facility_and_air_defense_cost:,.0f}")
+            st.write(f"Totale missilkostnader: {total_missile_cost:,.0f}")
             with st.expander("Vis iterasjonshistorikk"):
                 history_df = pd.DataFrame(results_dict["history"])
                 st.dataframe(history_df)

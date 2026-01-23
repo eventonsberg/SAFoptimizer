@@ -13,7 +13,7 @@ potential_facilities = pd.DataFrame([
         "Kapasitet": 20,
         "Kostnad": 20000000,
         "Hardhet": 3.0,
-        "Maks antall": 10
+        "Maks antall": 12
     },
     {
         "Type": "SAF-anlegg (stor)",
@@ -40,7 +40,7 @@ restrictions = pd.DataFrame([
     },
     {
         "Type": "Fabrikk- og luftvernbudsjett",
-        "Mengde": 150000000
+        "Mengde": 250000000
     }
 ])
 
