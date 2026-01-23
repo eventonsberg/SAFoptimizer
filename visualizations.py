@@ -32,16 +32,22 @@ def plot_facility_configuration_vs_missile_budget(type_f):
     data = []
     for budget, result in results.items():
         established = result["established_facilities"]
-        for idx, (t, est) in enumerate(zip(type_f, established)):
+        air_defense = result["air_defense_assignment"]
+        destroyed = result["attack_scenario"]
+        for idx, (t, est, ad, dest) in enumerate(zip(type_f, established, air_defense, destroyed)):
             if est:
                 data.append({
                     "Missilbudsjett": budget,
                     "Fabrikktype": t,
                     "FabrikkID": f"{t} #{idx+1}",
-                    "Antall etablert": 1
+                    "Antall etablert": 1,
+                    "Luftvern": ad,
+                    "Ødelagt": dest
                 })
     df = pd.DataFrame(data)
-    chart = alt.Chart(df).mark_bar().encode(
+    bar = alt.Chart(df).mark_bar(
+        strokeWidth=1.5
+    ).encode(
         x=alt.X(
             "Missilbudsjett:O",
             title="Missilbudsjett",
@@ -54,10 +60,21 @@ def plot_facility_configuration_vs_missile_budget(type_f):
         ),
         color=alt.Color(
             "Fabrikktype:N",
-            title="Fabrikktype",
+            title=None,
             legend=alt.Legend(orient="bottom")
         ),
-        tooltip=["Missilbudsjett", "Fabrikktype", "FabrikkID"]
+        stroke=alt.Stroke(
+            "Ødelagt:N",
+            scale=alt.Scale(domain=[True, False],
+                            range=["red", "transparent"]
+            ),
+            legend=alt.Legend(title=" ",
+                              orient="bottom",
+                              values=[True],
+                              labelExpr="'True' ? 'Fabrikk ødelagt' : ''"
+            )
+        ),
+        tooltip=["Missilbudsjett", "Fabrikktype", "FabrikkID", "Luftvern", "Ødelagt"]
     )
-    st.altair_chart(chart)
+    st.altair_chart(bar)
     
