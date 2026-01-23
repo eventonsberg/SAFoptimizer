@@ -46,7 +46,7 @@ def plot_facility_configuration_vs_missile_budget(type_f):
                 })
     df = pd.DataFrame(data)
     bar = alt.Chart(df).mark_bar(
-        strokeWidth=1.5
+        strokeWidth=2
     ).encode(
         x=alt.X(
             "Missilbudsjett:O",
@@ -60,15 +60,16 @@ def plot_facility_configuration_vs_missile_budget(type_f):
         ),
         color=alt.Color(
             "Fabrikktype:N",
-            title=None,
+            title="",
             legend=alt.Legend(orient="bottom")
         ),
+        order=alt.Order("Ødelagt:O", sort="ascending"),
         stroke=alt.Stroke(
             "Ødelagt:N",
             scale=alt.Scale(domain=[True, False],
                             range=["red", "transparent"]
             ),
-            legend=alt.Legend(title=" ",
+            legend=alt.Legend(title="",
                               orient="bottom",
                               values=[True],
                               labelExpr="'True' ? 'Fabrikk ødelagt' : ''"
