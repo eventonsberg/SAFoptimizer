@@ -8,6 +8,7 @@ potential_facilities = pd.DataFrame([
         "Hardhet": 3.0,
         "Maks antall": 1
     },
+    
     {
         "Type": "SAF-anlegg (liten)",
         "Kapasitet": 20,
@@ -20,7 +21,7 @@ potential_facilities = pd.DataFrame([
         "Kapasitet": 200,
         "Kostnad": 100000000,
         "Hardhet": 3.0,
-        "Maks antall": 3
+        "Maks antall": 2
     }
 ])
 
