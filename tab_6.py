@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from input_data_6 import potential_facilities, air_defense, restrictions
 from optimizer_6 import generate_model_inputs, solve_interdiction
-from notes_5 import display_notes
+from notes_6 import display_notes
 
 def display_tab_6():
     with st.expander("Vis notater"):
