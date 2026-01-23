@@ -53,9 +53,9 @@ def plot_facility_configuration_vs_missile_budget(type_f):
             title="Antall etablerte fabrikker"
         ),
         color=alt.Color(
-            "FabrikkID:N",
-            title="FabrikkID",
-            legend=None
+            "Fabrikktype:N",
+            title="Fabrikktype",
+            legend=alt.Legend(orient="bottom")
         ),
         tooltip=["Missilbudsjett", "Fabrikktype", "FabrikkID"]
     )
