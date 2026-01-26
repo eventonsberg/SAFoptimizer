@@ -45,8 +45,10 @@ def plot_facility_configuration_vs_missile_budget(type_f):
                     "Ødelagt": dest
                 })
     df = pd.DataFrame(data)
+    #df["LabelPos"] = df["Antall etablert"] - 0.5
     bar = alt.Chart(df).mark_bar(
-        strokeWidth=2
+        strokeWidth=2,
+        align="center"
     ).encode(
         x=alt.X(
             "Missilbudsjett:O",
@@ -77,5 +79,30 @@ def plot_facility_configuration_vs_missile_budget(type_f):
         ),
         tooltip=["Missilbudsjett", "Fabrikktype", "FabrikkID", "Luftvern", "Ødelagt"]
     )
-    st.altair_chart(bar)
+    text = (
+        alt.Chart(df)
+
+        .transform_window(
+            stack_index='row_number()',
+            groupby=["Missilbudsjett", "Fabrikktype"],
+            sort=[
+                alt.SortField("Ødelagt", order="ascending"),
+                alt.SortField("FabrikkID", order="ascending")
+            ]
+        )
+        .transform_calculate(LabelPos="datum.stack_index - 0.5")
+        .mark_text(
+            align="center",
+            baseline="middle",
+            fontSize=12,
+            color="black"
+        ).encode(
+            x=alt.X("Missilbudsjett:O"),
+            xOffset=alt.XOffset("Fabrikktype:N"),
+            y=alt.Y("LabelPos:Q"),
+            detail="FabrikkID:N",
+            text=alt.Text("Luftvern:N")
+        )
+    )
+    st.altair_chart(bar + text)
     
