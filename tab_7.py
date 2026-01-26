@@ -64,8 +64,8 @@ def display_tab_7():
         chart2_placeholder = st.empty()
         for missile_budget in range(missile_budget_range[0], missile_budget_range[1] + 1):
             restrictions_edited.loc[0, "Mengde"] = missile_budget
-            P_A, C_A, A_max, B_R, B_B, F, type_f, K_f, H_f, C_f, M_M, M_K = generate_model_inputs(potential_facilities_edited, air_defense_edited, restrictions_edited)
-            result = solve_interdiction(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f, M_M, M_K, iteration_placeholder=iteration_placeholder)
+            P_A, C_A, A_max, B_R, B_B, F, type_f, K_f, H_f, C_f = generate_model_inputs(potential_facilities_edited, air_defense_edited, restrictions_edited)
+            result = solve_interdiction(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f, iteration_placeholder=iteration_placeholder)
             if result["status"] != "OPTIMAL":
                 st.warning(f"Løsningen for missilbudsjett {missile_budget} ikke funnet. Status: {result['status']}")
                 return
