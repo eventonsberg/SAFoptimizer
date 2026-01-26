@@ -1,5 +1,6 @@
 from ortools.sat.python import cp_model
 from optimizer_5 import minimize_production_capacity
+import streamlit as st
 
 def scale_int(value, scale=100):
     # Help function to scale float to int for CP-SAT
@@ -79,10 +80,13 @@ def maximize_remaining_production_capacity(P_A, C_A, A_max, B_R, B_B, F, K_f, H_
     remaining_production_capacity = int(solver.ObjectiveValue())
     return estblished_f, air_defense_f, remaining_production_capacity, status
 
-def solve_interdiction(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f, M_M, M_K, max_iters=1000):
+def solve_interdiction(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f, M_M, M_K, max_iters=1000, iteration_placeholder=None):
     scenarios = [] # List of attack scenarios
     history = [] # Iteration history
     for it in range(max_iters):
+        st.session_state.current_iteration = it
+        if iteration_placeholder:
+            iteration_placeholder.markdown(f":red-badge[Iterasjon: {st.session_state.current_iteration}]")
         e_f, a_f, K_tot_star, status = maximize_remaining_production_capacity(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f, M_M, M_K, scenarios)
         if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
             return {"status": "INFEASABLE", "history": history}
