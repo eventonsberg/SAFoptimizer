@@ -41,7 +41,7 @@ def display_tab_6():
     if st.button("Kjør optimering", type="primary", key="optimize_6"):
         iteration_placeholder = st.empty()
         P_A, C_A, A_max, B_R, B_B, F, type_f, K_f, H_f, C_f = generate_model_inputs(potential_facilities_edited, air_defense_edited, restrictions_edited)
-        results_dict = solve_interdiction(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f, iteration_placeholder=iteration_placeholder)
+        results_dict = solve_interdiction(P_A, C_A, A_max, B_R, B_B, F, type_f, K_f, H_f, C_f, iteration_placeholder=iteration_placeholder)
         if results_dict["status"] == "OPTIMAL":
             results = []
             type_counters = {}

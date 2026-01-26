@@ -27,7 +27,7 @@ def generate_model_inputs(potential_facilities, air_defense, restrictions):
             C_f.append(int(potential_facilities.loc[f_type, "Kostnad"]))
     return P_A, C_A, A_max, B_R, B_B, F, type_f, K_f, H_f, C_f
 
-def maximize_remaining_production_capacity(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f, scenarios):
+def maximize_remaining_production_capacity(P_A, C_A, A_max, B_R, B_B, F, type_f, K_f, H_f, C_f, scenarios):
     # Model
     model = cp_model.CpModel()
 
@@ -62,6 +62,15 @@ def maximize_remaining_production_capacity(P_A, C_A, A_max, B_R, B_B, F, K_f, H_
         sum(C_f[f] * e_f[f] + C_A * a_f[f] for f in range(F)) <= B_B  # Facility and air defense budget constraint
     )
 
+    type_f_prev = type_f[0]
+    for f in range(1, F):
+        if type_f[f] != type_f_prev:
+            type_f_prev = type_f[f]
+            continue
+        model.Add(
+            e_f[f] <= e_f[f - 1]  # Symmetry breaking: establish facilities of the same type in order
+        )
+
     # Objective
     model.Maximize(
         K_tot_star  # Maximize remaining production capacity after worst possible attack
@@ -75,14 +84,14 @@ def maximize_remaining_production_capacity(P_A, C_A, A_max, B_R, B_B, F, K_f, H_
     remaining_production_capacity = int(solver.ObjectiveValue())
     return estblished_f, air_defense_f, remaining_production_capacity, status
 
-def solve_interdiction(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f, max_iters=1000, iteration_placeholder=None):
+def solve_interdiction(P_A, C_A, A_max, B_R, B_B, F, type_f, K_f, H_f, C_f, max_iters=1000, iteration_placeholder=None):
     scenarios = [] # List of attack scenarios
     history = [] # Iteration history
     for it in range(max_iters):
         st.session_state.current_iteration = it
         if iteration_placeholder:
             iteration_placeholder.markdown(f":red-badge[Iterasjon: {st.session_state.current_iteration}]")
-        e_f, a_f, K_tot_star, status = maximize_remaining_production_capacity(P_A, C_A, A_max, B_R, B_B, F, K_f, H_f, C_f, scenarios)
+        e_f, a_f, K_tot_star, status = maximize_remaining_production_capacity(P_A, C_A, A_max, B_R, B_B, F, type_f, K_f, H_f, C_f, scenarios)
         if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
             return {"status": "INFEASABLE", "history": history}
         d_f, missile_cost_f, production_capacity = minimize_production_capacity(P_A, B_R, F, K_f, e_f, H_f, a_f)
