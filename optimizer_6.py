@@ -70,6 +70,9 @@ def maximize_remaining_production_capacity(P_A, C_A, A_max, B_R, B_B, F, type_f,
         model.Add(
             e_f[f] <= e_f[f - 1]  # Symmetry breaking: establish facilities of the same type in order
         )
+        model.Add(
+            a_f[f] <= a_f[f - 1]  # Symmetry breaking: assign air defense missiles in order
+        )
 
     # Objective
     model.Maximize(

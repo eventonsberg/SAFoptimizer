@@ -46,7 +46,7 @@ def display_tab_7():
     missile_budget_range = st.slider(
         "Velg variasjon for missilbudsjett:",
         min_value=0,
-        max_value=30,
+        max_value=50,
         value=(0, 10)
     )
 
